@@ -1,7 +1,10 @@
 import {
   Controller,
+  Get,
+  Param,
   Post,
   Req,
+  Res,
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
@@ -10,6 +13,7 @@ import {
   ApiBody,
   ApiConsumes,
   ApiOperation,
+  ApiParam,
   ApiTags,
 } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -66,5 +70,19 @@ export class OssController {
     });
 
     return { id: resp.id, url: resp.url };
+  }
+
+  @ApiBearerAuth()
+  @ApiOperation({ summary: '根据文件id下载文件' })
+  @ApiParam({ name: 'id', type: 'string', required: true })
+  @Get('download/:id')
+  async downloadFileById(@Req() req, @Res() res, @Param('id') id: string) {
+    const file = await this.ossService.findById(id);
+    if (!file) {
+      return res.status(404).send('文件不存在');
+    }
+    const saveDir = path.resolve(this.config.get('UPLOAD_PATH'));
+    const filePath = path.join(saveDir, file.url);
+    res.download(filePath, file.name);
   }
 }

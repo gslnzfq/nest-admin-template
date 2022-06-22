@@ -17,6 +17,7 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
   }
 
   canActivate(context: ExecutionContext) {
+    const request = context.switchToHttp().getRequest();
     /**
      * 是否忽略jwt检查
      * 给某些路由设置白名单等
@@ -30,6 +31,12 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     if (ignoreJwtAuth) {
       return true;
     }
+
+    // token在黑名单里面
+    if (request.tokenInvalid) {
+      throw new UnauthorizedException();
+    }
+
     // 在这里添加自定义的认证逻辑
     // 例如调用 super.logIn(request) 来建立一个session
     return super.canActivate(context);

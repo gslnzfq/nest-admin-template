@@ -4,7 +4,7 @@ import * as cookieParser from 'cookie-parser';
 // import * as csurf from 'csurf';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
-import { magenta, green } from 'chalk';
+import { green, magenta } from 'chalk';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { CommonExceptionFilter } from './filters/common-exception.filter';
 import { TransformInterceptor } from './interceptors/transform.interceptor';

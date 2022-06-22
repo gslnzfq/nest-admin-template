@@ -1,12 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { Repository } from 'typeorm';
-import { UsersEntity } from '@/modules/users/users.entity';
+import { UsersEntity } from '@/modules/users/entities/users.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { instanceToPlain } from 'class-transformer';
 import { encryption } from '@/utils/password';
 import { UserResult } from '@/modules/oauth2/service/oauth2.service.interface';
-import { ThirdUserEntity } from '@/modules/users/third-user.entity';
+import { ThirdUserEntity } from '@/modules/users/entities/third-user.entity';
 import { PartialType } from '@nestjs/swagger';
+import { PrivateTokenEntity } from '@/modules/users/entities/private-token.entity';
 
 class ThirdUserInput extends PartialType(ThirdUserEntity) {}
 
@@ -17,6 +18,8 @@ export class UsersService {
     private readonly userRepo: Repository<UsersEntity>,
     @InjectRepository(ThirdUserEntity)
     private readonly thirdUserRepository: Repository<ThirdUserEntity>,
+    @InjectRepository(PrivateTokenEntity)
+    private readonly privateTokenRepository: Repository<PrivateTokenEntity>,
   ) {}
 
   async fineOneByUserId(userId: string): Promise<any> {
@@ -83,5 +86,35 @@ export class UsersService {
   async deleteThirdUser(userId: string, thirdType: string): Promise<any> {
     const result = await this.thirdUserRepository.delete({ userId, thirdType });
     return result.affected;
+  }
+
+  /**
+   * 生成用户的私有token
+   * @param data
+   */
+  async savePrivateToken(
+    data: Omit<PrivateTokenEntity, 'id' | 'createTime'>,
+  ): Promise<any> {
+    const token = new PrivateTokenEntity();
+    token.userId = data.userId;
+    token.token = data.token;
+    token.expireTime = data.expireTime;
+    return this.privateTokenRepository.save(token);
+  }
+
+  /**
+   * 将token失效
+   * @param token
+   */
+  async removePrivateToken(token: string): Promise<any> {
+    return this.privateTokenRepository.delete({ token });
+  }
+
+  /**
+   * 查询当前用户的私有token
+   * @param userId
+   */
+  async findPrivateTokenList(userId: string): Promise<any[]> {
+    return this.privateTokenRepository.find({ where: { userId } });
   }
 }

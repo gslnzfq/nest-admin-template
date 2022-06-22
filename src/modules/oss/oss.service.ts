@@ -13,4 +13,8 @@ export class OssService {
   async save(oss: Partial<OssEntity>) {
     return await this.ossRepository.save(oss);
   }
+
+  async findById(id: string) {
+    return await this.ossRepository.findOne({ where: { id } });
+  }
 }

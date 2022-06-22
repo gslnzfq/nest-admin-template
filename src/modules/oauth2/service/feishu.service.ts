@@ -6,7 +6,6 @@ import {
   Oauth2ServiceInterface,
   UserResult,
 } from '@/modules/oauth2/service/oauth2.service.interface';
-import * as pinyin from 'pinyin';
 
 @Injectable()
 export class FeishuService implements Oauth2ServiceInterface {
@@ -40,6 +39,21 @@ export class FeishuService implements Oauth2ServiceInterface {
   }
 
   /**
+   * 通过refresh_token获取access_token
+   * @param refreshToken
+   */
+  getAccessTokenByRefreshToken(refreshToken: string) {
+    return this.http
+      .post(`https://open.feishu.cn/connect/qrconnect/oauth2/access_token/`, {
+        app_id: this.clientId,
+        app_secret: this.clientSecret,
+        grant_type: 'refresh_token',
+        refresh_token: refreshToken,
+      })
+      .pipe(map((res) => res.data));
+  }
+
+  /**
    * 获取用户信息
    * @param accessToken
    */
@@ -66,13 +80,19 @@ export class FeishuService implements Oauth2ServiceInterface {
            *   user_id: ''
            * }
            */
-          const { name, avatar_url, email = '', union_id } = res.data.data;
+          const {
+            name,
+            avatar_url,
+            email = '',
+            union_id,
+            user_id,
+          } = res.data.data;
           return {
             name,
             email,
             avatar: avatar_url,
             thirdId: union_id,
-            account: pinyin(name, { style: pinyin.STYLE_NORMAL }).join(''),
+            account: user_id,
             channel: 'feishu',
           };
         }),

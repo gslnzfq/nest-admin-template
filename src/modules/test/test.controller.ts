@@ -6,7 +6,6 @@ import {
   ApiQuery,
   ApiTags,
 } from '@nestjs/swagger';
-import { AuthService } from '@/modules/auth/auth.service';
 import { CacheService } from '@/modules/cache/cache.service';
 import { EmailService } from '@/modules/email/email.service';
 import { HttpService } from '@nestjs/axios';
@@ -42,7 +41,6 @@ export class TestDto {
 @Controller()
 export class TestController {
   constructor(
-    private readonly authService: AuthService,
     private readonly cacheService: CacheService,
     private readonly emailService: EmailService,
     private readonly httpService: HttpService,

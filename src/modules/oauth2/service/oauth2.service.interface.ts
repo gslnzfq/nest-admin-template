@@ -51,6 +51,14 @@ export interface Oauth2ServiceInterface {
   getAccessToken(code: string): Observable<AccessTokenResult>;
 
   /**
+   * 通过refresh_token获取access_token
+   * @param refreshToken
+   */
+  getAccessTokenByRefreshToken?(
+    refreshToken: string,
+  ): Observable<AccessTokenResult>;
+
+  /**
    * 获取用户信息
    * @param accessToken
    */

@@ -1,8 +1,8 @@
 import { ConfigService } from '@nestjs/config';
+import { nanoid } from 'nanoid';
 import * as path from 'path';
 import * as multer from 'multer';
 import * as dayjs from 'dayjs';
-import * as shortid from 'shortid';
 import * as fs from 'fs';
 
 export const multerConfig = (config: ConfigService) => {
@@ -54,7 +54,7 @@ export const multerConfig = (config: ConfigService) => {
         // 文件扩展名
         const ext = path.extname(originalname);
         // 存储文件完整路径
-        cb(null, `${prefix}${shortid()}${ext}`);
+        cb(null, `${prefix}${nanoid(12)}${ext}`);
       },
     }),
   };

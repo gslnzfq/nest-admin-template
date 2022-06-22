@@ -21,13 +21,36 @@ export class AuthService {
   }
 
   /**
+   * 生成私有的token
+   * @param user
+   * @param expiresIn
+   */
+  async signPrivateToken(
+    user: { account: string; id: string },
+    expiresIn: string,
+  ) {
+    const payload = { account: user.account, userId: user.id };
+    return this.jwtService.sign(payload, {
+      expiresIn,
+    });
+  }
+
+  /**
    * 校验完成下一步进行登录生成token
    * @param user
    */
-  async login(user: any) {
-    const payload = { account: user.account, sub: user.id };
+  async login(user: { account: string; id: string }) {
+    const payload = { account: user.account, userId: user.id };
     return {
       token: this.jwtService.sign(payload),
     };
+  }
+
+  /**
+   * 解析token中的数据
+   * @param token
+   */
+  async decodeToken(token: string) {
+    return this.jwtService.decode(token);
   }
 }

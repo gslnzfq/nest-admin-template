@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { UsersModule } from '@/modules/users/users.module';
 import { AuthModule } from '@/modules/auth/auth.module';
 import { APP_GUARD } from '@nestjs/core';
@@ -7,11 +7,13 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { CacheModule } from '@/modules/cache/cache.module';
 import { EmailModule } from '@/modules/email/email.module';
 import { HttpModule } from '@nestjs/axios';
+import { ScheduleModule } from '@nestjs/schedule';
 import { OssModule } from '@/modules/oss/oss.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { TestModule } from '@/modules/test/test.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Oauth2Module } from '@/modules/oauth2/oauth2.module';
+import { AuthMiddleware } from '@/middlewares/auth.middleware';
 import * as path from 'path';
 
 @Module({
@@ -19,19 +21,6 @@ import * as path from 'path';
     ServeStaticModule.forRoot({
       rootPath: path.join(__dirname, '../upload'),
       serveRoot: '/assets',
-      serveStaticOptions: {
-        setHeaders: (res, path) => {
-          // json文件直接下载，不添加header会走拦截器
-          if (path.endsWith('.json')) {
-            const filename = path.split('/').pop();
-            res.setHeader('Content-Type', 'text/plain');
-            res.setHeader(
-              'Content-Disposition',
-              `attachment; filename=${filename}`,
-            );
-          }
-        },
-      },
     }),
     HttpModule.register({
       timeout: 5000, // 超时时间
@@ -60,6 +49,7 @@ import * as path from 'path';
         };
       },
     }),
+    ScheduleModule.forRoot(),
     CacheModule,
     EmailModule,
     OssModule,
@@ -75,4 +65,8 @@ import * as path from 'path';
     },
   ],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer): any {
+    consumer.apply(AuthMiddleware).forRoutes('*');
+  }
+}

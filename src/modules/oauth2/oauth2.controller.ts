@@ -17,6 +17,7 @@ import { Oauth2ServiceInterface } from '@/modules/oauth2/service/oauth2.service.
 import { FeishuService } from '@/modules/oauth2/service/feishu.service';
 import { ConfigService } from '@nestjs/config';
 import { GiteeService } from '@/modules/oauth2/service/gitee.service';
+import { stringify } from 'qs';
 import ms from 'ms';
 
 @ApiTags('第三方授权')
@@ -83,7 +84,10 @@ export class Oauth2Controller {
     }
 
     // 获取当前系统用户的token
-    const localToken = await this.authService.login(user);
+    const localToken = await this.authService.login({
+      account: user.account,
+      id: user.id,
+    });
     // 设置浏览器cookie
     res.cookie('token', localToken.token, {
       // 客户端不可读取
@@ -161,11 +165,13 @@ export class Oauth2Controller {
     const GITLAB_CLIENT_ID = this.configService.get('GITLAB_CLIENT_ID');
     const GITLAB_REDIRECT_URL = this.configService.get('GITLAB_REDIRECT_URL');
 
-    return res.redirect(
-      `${GITLAB_URL}/oauth/authorize?client_id=${GITLAB_CLIENT_ID}&redirect_uri=${encodeURIComponent(
-        GITLAB_REDIRECT_URL,
-      )}&response_type=code`,
-    );
+    const params = {
+      client_id: GITLAB_CLIENT_ID,
+      redirect_uri: GITLAB_REDIRECT_URL,
+      response_type: 'code',
+    };
+
+    return res.redirect(`${GITLAB_URL}/oauth/authorize?${stringify(params)}`);
   }
 
   @ApiOperation({ summary: '重定向到github登录' })
@@ -175,10 +181,14 @@ export class Oauth2Controller {
     const GITHUB_CLIENT_ID = this.configService.get('GITHUB_CLIENT_ID');
     const GITHUB_REDIRECT_URL = this.configService.get('GITHUB_REDIRECT_URL');
 
+    const params = {
+      client_id: GITHUB_CLIENT_ID,
+      redirect_uri: GITHUB_REDIRECT_URL,
+      response_type: 'code',
+    };
+
     return res.redirect(
-      `https://github.com/login/oauth/authorize?client_id=${GITHUB_CLIENT_ID}&redirect_uri=${encodeURIComponent(
-        GITHUB_REDIRECT_URL,
-      )}&response_type=code`,
+      `https://github.com/login/oauth/authorize?${stringify(params)}`,
     );
   }
 
@@ -189,10 +199,14 @@ export class Oauth2Controller {
     const GITEE_CLIENT_ID = this.configService.get('GITEE_CLIENT_ID');
     const GITEE_REDIRECT_URL = this.configService.get('GITEE_REDIRECT_URL');
 
+    const params = {
+      client_id: GITEE_CLIENT_ID,
+      redirect_uri: GITEE_REDIRECT_URL,
+      response_type: 'code',
+    };
+
     return res.redirect(
-      `https://gitee.com/oauth/authorize?client_id=${GITEE_CLIENT_ID}&redirect_uri=${encodeURIComponent(
-        GITEE_REDIRECT_URL,
-      )}&response_type=code`,
+      `https://gitee.com/oauth/authorize?${stringify(params)}`,
     );
   }
 
@@ -203,10 +217,13 @@ export class Oauth2Controller {
     const FEISHU_CLIENT_ID = this.configService.get('FEISHU_CLIENT_ID');
     const FEISHU_REDIRECT_URL = this.configService.get('FEISHU_REDIRECT_URL');
 
+    const params = {
+      app_id: FEISHU_CLIENT_ID,
+      redirect_uri: FEISHU_REDIRECT_URL,
+    };
+
     return res.redirect(
-      `https://open.feishu.cn/connect/qrconnect/page/sso/?app_id=${FEISHU_CLIENT_ID}&redirect_uri=${encodeURIComponent(
-        FEISHU_REDIRECT_URL,
-      )}`,
+      `https://open.feishu.cn/connect/qrconnect/page/sso/?${stringify(params)}`,
     );
   }
 }
