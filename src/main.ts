@@ -20,8 +20,6 @@ async function bootstrap() {
   // cookieParser是csurf的依赖，需要引入
   app.use(cookieParser());
   // app.use(csurf({ cookie: true }));
-  // 添加常见的header，防止被攻击
-  app.use(helmet());
   // 设置访问频率
   app.set('trust proxy', 1);
   app.use(
@@ -51,6 +49,10 @@ async function bootstrap() {
   const listenPort = parseInt(config.get('LISTEN_PORT'), 10) || 3000;
   const swaggerBase = config.get('SWAGGER_URL') || 'api';
   const disableSwagger = config.get('SWAGGER_OFF') === 'true';
+  const apiServerList = config
+    .get<string>('API_SERVER_LIST')
+    .split(';')
+    .filter(Boolean);
 
   // 启动swagger服务
   if (!disableSwagger) {
@@ -59,11 +61,19 @@ async function bootstrap() {
       .setTitle('Nest Admin Template')
       .setDescription('一个基于nest开发的后台管理系统模版')
       .setVersion('1.0')
-      .addBearerAuth()
-      .build();
-    const document = SwaggerModule.createDocument(app, config);
+      .addBearerAuth();
+
+    // 添加server
+    apiServerList.forEach((server) => {
+      config.addServer(server);
+    });
+
+    const document = SwaggerModule.createDocument(app, config.build());
     SwaggerModule.setup(swaggerBase, app, document);
   }
+
+  // 添加常见的header，防止被攻击
+  app.use(helmet());
 
   // 必须要设置了swagger之后再listen，否则swagger将无法访问
   await app.listen(listenPort);

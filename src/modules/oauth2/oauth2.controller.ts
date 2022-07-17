@@ -3,6 +3,7 @@ import { IgnoreAuthCheck } from '@/decorators/ignore-auth-check';
 import { GitlabService } from '@/modules/oauth2/service/gitlab.service';
 import {
   ApiBearerAuth,
+  ApiMovedPermanentlyResponse,
   ApiOperation,
   ApiParam,
   ApiQuery,
@@ -46,7 +47,11 @@ export class Oauth2Controller {
   @IgnoreAuthCheck()
   @ApiOperation({ summary: '登录成功的回调地址' })
   @ApiQuery({ name: 'code', description: '授权码' })
-  @ApiParam({ name: 'type', description: '授权类型' })
+  @ApiParam({
+    name: 'type',
+    enum: ['github', 'gitlab', 'feishu', 'gitee'],
+    description: '授权类型',
+  })
   @Get(':type/redirect')
   async redirect(
     @Res() res: Response,
@@ -103,7 +108,11 @@ export class Oauth2Controller {
   @ApiBearerAuth()
   @ApiOperation({ summary: '绑定用户回调' })
   @ApiQuery({ name: 'code', description: '授权码' })
-  @ApiParam({ name: 'type', description: '授权类型' })
+  @ApiParam({
+    name: 'type',
+    enum: ['github', 'gitlab', 'feishu', 'gitee'],
+    description: '授权类型',
+  })
   @Get(':type/bind')
   async bind(
     @Res({ passthrough: true }) res: Response,
@@ -146,7 +155,11 @@ export class Oauth2Controller {
 
   @ApiBearerAuth()
   @ApiOperation({ summary: '解绑用户' })
-  @ApiParam({ name: 'type', description: '授权类型' })
+  @ApiParam({
+    name: 'type',
+    enum: ['github', 'gitlab', 'feishu', 'gitee'],
+    description: '授权类型',
+  })
   @Get(':type/unbind')
   async unbind(@Req() req: Request, @Param('type') type: string): Promise<any> {
     const { userId } = req.user as any;
@@ -159,6 +172,7 @@ export class Oauth2Controller {
 
   @IgnoreAuthCheck()
   @ApiOperation({ summary: '重定向到gitlab登录' })
+  @ApiMovedPermanentlyResponse()
   @Get('gitlab')
   async gitlab(@Res() res: Response) {
     const GITLAB_URL = this.configService.get('GITLAB_URL');
@@ -174,8 +188,9 @@ export class Oauth2Controller {
     return res.redirect(`${GITLAB_URL}/oauth/authorize?${stringify(params)}`);
   }
 
-  @ApiOperation({ summary: '重定向到github登录' })
   @IgnoreAuthCheck()
+  @ApiOperation({ summary: '重定向到github登录' })
+  @ApiMovedPermanentlyResponse()
   @Get('github')
   async github(@Res() res: Response) {
     const GITHUB_CLIENT_ID = this.configService.get('GITHUB_CLIENT_ID');
@@ -192,8 +207,9 @@ export class Oauth2Controller {
     );
   }
 
-  @ApiOperation({ summary: '重定向到gitee登录' })
   @IgnoreAuthCheck()
+  @ApiOperation({ summary: '重定向到gitee登录' })
+  @ApiMovedPermanentlyResponse()
   @Get('gitee')
   async gitee(@Res() res: Response) {
     const GITEE_CLIENT_ID = this.configService.get('GITEE_CLIENT_ID');
@@ -210,8 +226,9 @@ export class Oauth2Controller {
     );
   }
 
-  @ApiOperation({ summary: '重定向到feishu登录' })
   @IgnoreAuthCheck()
+  @ApiOperation({ summary: '重定向到feishu登录' })
+  @ApiMovedPermanentlyResponse()
   @Get('feishu')
   async feishu(@Res() res: Response) {
     const FEISHU_CLIENT_ID = this.configService.get('FEISHU_CLIENT_ID');

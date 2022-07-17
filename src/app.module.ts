@@ -14,6 +14,8 @@ import { TestModule } from '@/modules/test/test.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Oauth2Module } from '@/modules/oauth2/oauth2.module';
 import { AuthMiddleware } from '@/middlewares/auth.middleware';
+import { PlatformModule } from '@/modules/platform/platform.module';
+import { TimerModule } from '@/modules/timer/timer.module';
 import * as path from 'path';
 
 @Module({
@@ -56,6 +58,8 @@ import * as path from 'path';
     AuthModule,
     UsersModule,
     Oauth2Module,
+    PlatformModule,
+    TimerModule,
     TestModule,
   ],
   providers: [
