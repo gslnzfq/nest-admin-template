@@ -13,14 +13,12 @@ export class PlatformController {
   @ApiOperation({ summary: '获取平台信息' })
   @ApiSuccessResponse({ model: PlatformInfoDto })
   async info() {
-    const [versions, osInfo, cpuInfo, currentLoadInfo, memInfo, time] = (
+    const [versions, osInfo, cpuInfo, memInfo, time] = (
       await Promise.allSettled([
         sys.versions('node, npm, yarn, redis'),
         sys.osInfo(),
         sys.cpu(),
-        sys.currentLoad(),
         sys.mem(),
-        sys.memLayout(),
         sys.time(),
       ])
     ).map((p: any) => p.value);
@@ -29,7 +27,6 @@ export class PlatformController {
       versions,
       osInfo,
       cpuInfo,
-      currentLoadInfo,
       memInfo,
       time,
     };

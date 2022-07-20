@@ -19,7 +19,7 @@ import { FeishuService } from '@/modules/oauth2/service/feishu.service';
 import { ConfigService } from '@nestjs/config';
 import { GiteeService } from '@/modules/oauth2/service/gitee.service';
 import { stringify } from 'qs';
-import ms from 'ms';
+import * as ms from 'ms';
 
 @ApiTags('第三方授权')
 @Controller('oauth2')

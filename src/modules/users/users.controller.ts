@@ -16,7 +16,7 @@ import { CreatePrivateTokenDto } from './dto/create-private-token.dto';
 import { CacheService } from '@/modules/cache/cache.service';
 import { RemovePrivateTokenDto } from '@/modules/users/dto/remove-private-token.dto';
 import * as dayjs from 'dayjs';
-import ms from 'ms';
+import * as ms from 'ms';
 
 @ApiTags('用户模块')
 @Controller('user')
